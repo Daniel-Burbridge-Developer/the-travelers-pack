@@ -7,16 +7,11 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import Header from '../components/Header'
-
-import ConvexProvider from '../integrations/convex/provider'
-
-import TanStackQueryProvider from '../integrations/tanstack-query/root-provider'
-
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
-
 import appCss from '../styles.css?url'
-
 import type { QueryClient } from '@tanstack/react-query'
+
+import ConvexQueryProvider from '@/integrations/ConvexQueryProvider'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -33,7 +28,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'The Travelers Pack',
       },
     ],
     links: [
@@ -53,24 +48,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ConvexProvider>
-          <TanStackQueryProvider>
-            <Header />
-            {children}
-            <TanStackDevtools
-              config={{
-                position: 'bottom-right',
-              }}
-              plugins={[
-                {
-                  name: 'Tanstack Router',
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-                TanStackQueryDevtools,
-              ]}
-            />
-          </TanStackQueryProvider>
-        </ConvexProvider>
+        <ConvexQueryProvider>
+          <Header />
+          {children}
+          <TanStackDevtools
+            config={{
+              position: 'bottom-right',
+            }}
+            plugins={[
+              {
+                name: 'Tanstack Router',
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+              TanStackQueryDevtools,
+            ]}
+          />
+        </ConvexQueryProvider>
         <Scripts />
       </body>
     </html>
