@@ -1,9 +1,11 @@
-import type { ReactNode } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
+import { ConvexQueryClient } from '@convex-dev/react-query'
+import { env } from '../../env'
 
 let context:
   | {
       queryClient: QueryClient
+      convexQueryClient: ConvexQueryClient
     }
   | undefined
 
@@ -12,23 +14,25 @@ export function getContext() {
     return context
   }
 
-  const queryClient = new QueryClient()
+  const CONVEX_URL = env.VITE_CONVEX_URL
+  const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        queryKeyHashFn: convexQueryClient.hashFn(),
+        queryFn: convexQueryClient.queryFn(),
+      },
+    },
+  })
+
+  // Connect them together immediately here!
+  convexQueryClient.connect(queryClient)
 
   context = {
     queryClient,
+    convexQueryClient,
   }
 
   return context
-}
-
-export default function TanStackQueryProvider({
-  children,
-}: {
-  children: ReactNode
-}) {
-  const { queryClient } = getContext()
-
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
 }
