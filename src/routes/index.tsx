@@ -1,14 +1,23 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ItemTable } from '#/components/ItemTable.tsx'
-
+import { Link } from '@tanstack/react-router'
 export const Route = createFileRoute('/')({
   component: App,
 })
 
 function App() {
+  const featuredPages = [
+    <Link to="/inventory">Inventory</Link>,
+    <Link to="/items">Items</Link>,
+  ]
   return (
-    <div className="bg-black">
-      <ItemTable />
+    <div className="bg-background">
+      <section>
+        <h1> The Travelers Pack</h1>
+      </section>
+      <section>
+        {featuredPages &&
+          featuredPages.map((page, i) => <div key={i}>{page}</div>)}
+      </section>
     </div>
   )
 }
