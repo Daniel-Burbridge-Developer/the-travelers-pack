@@ -18,6 +18,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import { CATEGORY_META, RARITY_META } from '@/schemas/itemSchema'
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -30,12 +32,33 @@ type Item = z.infer<typeof itemSchema> & { _id: string; _creationTime: number }
 
 const columns: ColumnDef<Item>[] = [
   {
+    accessorKey: 'category',
+    header: 'Category',
+    cell: ({ row }) => {
+      const itemCategory = row.original.category
+      const meta = CATEGORY_META[itemCategory]
+
+      return (
+        <span>
+          {meta.icon} {meta.label}
+        </span>
+      )
+    },
+  },
+  {
     accessorKey: 'name',
     header: 'Name',
   },
   {
     accessorKey: 'rarity',
     header: 'Rarity',
+
+    cell: ({ row }) => {
+      const itemRarity = row.original.rarity
+      const meta = RARITY_META[itemRarity]
+
+      return <span className={`${meta.color} ${meta.glow}`}>{meta.label}</span>
+    },
   },
   {
     accessorKey: 'weight',
@@ -110,35 +133,12 @@ function DataTable<TData, TValue>({
 }
 
 export const ItemTable = () => {
-  const { data, error, isPending } = useQuery(convexQuery(api.items.list, {}))
-
-  // If TanStack Query crashes, print the error in giant red letters
-  if (error) {
-    return (
-      <div style={{ color: 'red', padding: '50px', fontSize: '24px' }}>
-        <strong>Crash Details:</strong> {error.message}
-      </div>
-    )
-  }
-
-  // If the WebSocket is still connecting
-  if (isPending) {
-    return <div style={{ color: 'white', padding: '50px' }}>Loading...</div>
-  }
-
-  // If the connection is perfect, but the database is empty
-  if (!data || data.length === 0) {
-    return (
-      <div style={{ color: 'white', padding: '50px' }}>
-        Database is successfully connected, but empty!
-      </div>
-    )
-  }
+  const { data } = useQuery(convexQuery(api.items.list, {}))
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-background text-foreground">
       <section>
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={columns} data={data || []} />
       </section>
     </div>
   )
