@@ -6,5 +6,9 @@ export const Route = createFileRoute('/items/')({
 })
 
 function Inventory() {
-  return <div className="bg-background">Not yet implemented</div>
+  return (
+    <div className="bg-background">
+      <ItemTable />
+    </div>
+  )
 }

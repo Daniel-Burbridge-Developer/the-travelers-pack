@@ -18,59 +18,61 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-import { CATEGORY_META, RARITY_META } from '@/schemas/itemSchema'
+import { CATEGORY_META, RARITY_META } from '@/schemas/schemas'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
-import { itemSchema } from '@/schemas/itemSchema'
+import { itemCatalogue } from '@/schemas/schemas'
 import type z from 'zod'
 
-type Item = z.infer<typeof itemSchema> & { _id: string; _creationTime: number }
+type Item = z.infer<typeof itemCatalogue> & {
+  _id: string
+  _creationTime: number
+}
 
 const columns: ColumnDef<Item>[] = [
   {
-    accessorKey: 'category',
-    header: 'Category',
-    cell: ({ row }) => {
-      const itemCategory = row.original.category
-      const meta = CATEGORY_META[itemCategory]
-
-      return (
-        <span>
-          {meta.icon} {meta.label}
-        </span>
-      )
-    },
+    accessorKey: 'slug',
+    header: 'Slug',
   },
   {
     accessorKey: 'name',
     header: 'Name',
   },
   {
-    accessorKey: 'rarity',
-    header: 'Rarity',
-
-    cell: ({ row }) => {
-      const itemRarity = row.original.rarity
-      const meta = RARITY_META[itemRarity]
-
-      return <span className={`${meta.color} ${meta.glow}`}>{meta.label}</span>
-    },
+    accessorKey: 'description',
+    header: 'Description',
   },
   {
-    accessorKey: 'weight',
-    header: 'Weight',
+    accessorKey: 'category',
+    header: 'Category',
+  },
+  {
+    accessorKey: 'rarity',
+    header: 'Rarity',
   },
   {
     accessorKey: 'value',
     header: 'Value',
   },
   {
-    accessorKey: 'quantity',
-    header: 'Quantity',
+    accessorKey: 'weight',
+    header: 'Weight',
+  },
+  {
+    accessorKey: 'imageURL',
+    header: 'Image URL',
+  },
+  {
+    accessorKey: 'stackable',
+    header: 'Stackable',
+  },
+  {
+    accessorKey: 'deleted',
+    header: 'Deleted',
   },
 ]
 
