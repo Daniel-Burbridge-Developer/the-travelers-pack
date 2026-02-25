@@ -30,6 +30,16 @@ export const remove = mutation({
   },
 })
 
+export const toggleDeleted = mutation({
+  args: { id: v.id('itemCatalogue') },
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get(args.id)
+    if (!item) throw new Error('Item not found')
+
+    await ctx.db.patch(args.id, { deleted: !item.deleted })
+  },
+})
+
 // Example of modify
 // export const toggle = mutation({
 //   args: { id: v.id('todos') },

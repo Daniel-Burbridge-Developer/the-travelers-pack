@@ -1,16 +1,16 @@
 import { z } from 'zod'
 
 export const itemCatalogue = z.object({
-  slug: z.string(),
-  name: z.string(),
-  description: z.string(),
+  slug: z.coerce.string(),
+  name: z.coerce.string(),
+  description: z.coerce.string(),
   category: z.enum(['weapon', 'armor', 'potion', 'material', 'misc']),
   rarity: z.enum(['common', 'uncommon', 'rare', 'epic', 'legendary']),
-  value: z.number().min(0),
-  weight: z.number(),
-  imageURL: z.url().nullable(),
-  stackable: z.boolean(),
-  deleted: z.boolean().default(false),
+  value: z.coerce.number().min(0),
+  weight: z.coerce.number(),
+  imageURL: z.coerce.string().nullable().default(null),
+  stackable: z.coerce.boolean(),
+  deleted: z.coerce.boolean().default(false),
 })
 
 export const RARITY_META = {

@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Link } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
+
 export const Route = createFileRoute('/')({
   component: App,
 })
@@ -9,14 +9,16 @@ function App() {
     <Link to="/inventory">Inventory</Link>,
     <Link to="/items">Items</Link>,
   ]
+
   return (
     <div className="bg-background">
       <section>
         <h1> The Travelers Pack</h1>
       </section>
       <section>
-        {featuredPages &&
-          featuredPages.map((page, i) => <div key={i}>{page}</div>)}
+        {featuredPages.map((page, i) => (
+          <div key={i}>{page}</div>
+        ))}
       </section>
     </div>
   )

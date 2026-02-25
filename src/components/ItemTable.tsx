@@ -1,8 +1,10 @@
-import type { itemCatalogue } from '@/schemas/schemas'
+import { itemCatalogue } from '@/schemas/schemas'
+import { ArrowRightLeft } from 'lucide-react'
 import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
 import { api } from 'convex/_generated/api'
+import type { Id } from 'convex/_generated/dataModel'
 import type z from 'zod'
 
 import {
@@ -20,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useState } from 'react'
+import { Button } from './ui/button'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -27,8 +30,25 @@ interface DataTableProps<TData, TValue> {
 }
 
 type Item = z.infer<typeof itemCatalogue> & {
-  _id: string
+  _id: Id<'itemCatalogue'>
   _creationTime: number
+}
+
+const ToggleDeletedCell = ({ item }: { item: Item }) => {
+  const mutation = useMutation({
+    mutationFn: useConvexMutation(api.items.toggleDeleted),
+  })
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => mutation.mutate({ id: item._id })}
+      className={item.deleted ? 'text-gray-400' : 'text-red-500'}
+    >
+      <span>{item.deleted ? 'Restore' : 'Delete'}</span>
+      <ArrowRightLeft />
+    </Button>
+  )
 }
 
 const columns: ColumnDef<Item>[] = [
@@ -71,12 +91,9 @@ const columns: ColumnDef<Item>[] = [
   {
     accessorKey: 'deleted',
     header: 'Deleted',
+    cell: ({ row }) => <ToggleDeletedCell item={row.original} />,
   },
 ]
-
-const InputCell = () => {
-  // Make it ugly first head to the bottom!
-}
 
 function DataTable<TData, TValue>({
   columns,
@@ -142,7 +159,7 @@ function DataTable<TData, TValue>({
               <TableCell key={cell.id}>
                 <input
                   onChange={(e) => handleCellChange(cell.id, e.target.value)}
-                  value={inputValues[cell.id]}
+                  value={inputValues[cell.id] ?? ''}
                   placeholder={cell.columnDef.header?.toString()}
                 ></input>
               </TableCell>
@@ -154,9 +171,15 @@ function DataTable<TData, TValue>({
               colSpan={columns.length}
               className="text-center"
               onClick={() => {
-                type newItemType = z.infer<typeof itemCatalogue>
-                const newItem = inputValues as newItemType
-                mutation.mutate(newItem)
+                const result = itemCatalogue.safeParse(inputValues)
+
+                if (result.success) {
+                  mutation.mutate(result.data)
+                } else {
+                  console.log(result.error.issues)
+                }
+
+                setInputValues({})
               }}
             >
               Add Item
@@ -170,7 +193,6 @@ function DataTable<TData, TValue>({
 
 export const ItemTable = () => {
   const { data } = useQuery(convexQuery(api.items.list, {}))
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <section>
@@ -179,5 +201,3 @@ export const ItemTable = () => {
     </div>
   )
 }
-
-// Bottom row should be a blank row, or even better hovering at bottom would be a plus. Then you can enter data, simply clicking out of the row with all fields completed send a db push.
