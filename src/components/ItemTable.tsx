@@ -1,7 +1,9 @@
-import type { ColumnDef } from '@tanstack/react-table'
+import type { itemCatalogue } from '@/schemas/schemas'
 import { convexQuery } from '@convex-dev/react-query'
 import { useQuery } from '@tanstack/react-query'
+import type { ColumnDef } from '@tanstack/react-table'
 import { api } from 'convex/_generated/api'
+import type z from 'zod'
 
 import {
   flexRender,
@@ -18,15 +20,10 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-import { CATEGORY_META, RARITY_META } from '@/schemas/schemas'
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
-
-import { itemCatalogue } from '@/schemas/schemas'
-import type z from 'zod'
 
 type Item = z.infer<typeof itemCatalogue> & {
   _id: string
@@ -76,6 +73,10 @@ const columns: ColumnDef<Item>[] = [
   },
 ]
 
+const InputCell = () => {
+  // Make it ugly first head to the bottom!
+}
+
 function DataTable<TData, TValue>({
   columns,
   data,
@@ -108,7 +109,7 @@ function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
@@ -128,6 +129,19 @@ function DataTable<TData, TValue>({
               </TableCell>
             </TableRow>
           )}
+          <div>
+            <TableRow>
+              {columns.map((cell) => (
+                <TableCell key={cell.id}>I'm not sure.</TableCell>
+              ))}
+            </TableRow>
+            {/* clicking on the below row validates above row, if not valid shows smart errors, if valid adds to DB, clears above row to start again. */}
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                Add Item
+              </TableCell>
+            </TableRow>
+          </div>
         </TableBody>
       </Table>
     </div>
@@ -145,3 +159,5 @@ export const ItemTable = () => {
     </div>
   )
 }
+
+// Bottom row should be a blank row, or even better hovering at bottom would be a plus. Then you can enter data, simply clicking out of the row with all fields completed send a db push.
