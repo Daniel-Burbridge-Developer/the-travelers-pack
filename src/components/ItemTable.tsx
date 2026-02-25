@@ -87,6 +87,10 @@ function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
   })
 
+  const handleCellChange = (cellID: string) => {
+    console.log(cellID)
+  }
+
   return (
     <div className="overflow-hidden rounded-md border">
       <Table>
@@ -129,19 +133,22 @@ function DataTable<TData, TValue>({
               </TableCell>
             </TableRow>
           )}
-          <div>
-            <TableRow>
-              {columns.map((cell) => (
-                <TableCell key={cell.id}>I'm not sure.</TableCell>
-              ))}
-            </TableRow>
-            {/* clicking on the below row validates above row, if not valid shows smart errors, if valid adds to DB, clears above row to start again. */}
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                Add Item
+          <TableRow>
+            {table.getVisibleFlatColumns().map((cell) => (
+              <TableCell key={cell.id}>
+                <input
+                  onChange={() => handleCellChange(cell.id)}
+                  placeholder={cell.columnDef.header?.toString()}
+                ></input>
               </TableCell>
-            </TableRow>
-          </div>
+            ))}
+          </TableRow>
+          {/* clicking on the below row validates above row, if not valid shows smart errors, if valid adds to DB, clears above row to start again. */}
+          <TableRow>
+            <TableCell colSpan={columns.length} className=" text-center">
+              Add Item
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </div>
