@@ -1,6 +1,6 @@
 import type { itemCatalogue } from '@/schemas/schemas'
-import { convexQuery } from '@convex-dev/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
 import { api } from 'convex/_generated/api'
 import type z from 'zod'
@@ -89,6 +89,7 @@ function DataTable<TData, TValue>({
   })
 
   const [inputValues, setInputValues] = useState<Record<string, string>>({})
+  const mutation = useMutation({ mutationFn: useConvexMutation(api.items.add) })
 
   const handleCellChange = (cellID: string, value: string) => {
     setInputValues({ ...inputValues, [cellID]: value })
@@ -149,7 +150,15 @@ function DataTable<TData, TValue>({
           </TableRow>
           {/* clicking on the below row validates above row, if not valid shows smart errors, if valid adds to DB, clears above row to start again. */}
           <TableRow>
-            <TableCell colSpan={columns.length} className=" text-center">
+            <TableCell
+              colSpan={columns.length}
+              className="text-center"
+              onClick={() => {
+                type newItemType = z.infer<typeof itemCatalogue>
+                const newItem = inputValues as newItemType
+                mutation.mutate(newItem)
+              }}
+            >
               Add Item
             </TableCell>
           </TableRow>
