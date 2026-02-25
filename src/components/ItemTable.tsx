@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useState } from 'react'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -87,8 +88,10 @@ function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const handleCellChange = (cellID: string) => {
-    console.log(cellID)
+  const [inputValues, setInputValues] = useState<Record<string, string>>({})
+
+  const handleCellChange = (cellID: string, value: string) => {
+    setInputValues({ ...inputValues, [cellID]: value })
   }
 
   return (
@@ -137,7 +140,8 @@ function DataTable<TData, TValue>({
             {table.getVisibleFlatColumns().map((cell) => (
               <TableCell key={cell.id}>
                 <input
-                  onChange={() => handleCellChange(cell.id)}
+                  onChange={(e) => handleCellChange(cell.id, e.target.value)}
+                  value={inputValues[cell.id]}
                   placeholder={cell.columnDef.header?.toString()}
                 ></input>
               </TableCell>
