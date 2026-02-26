@@ -1,10 +1,10 @@
 import { itemCatalogue } from '@/schemas/schemas'
-import { ArrowRightLeft } from 'lucide-react'
 import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
+import { ArrowRightLeft } from 'lucide-react'
 import type z from 'zod'
 
 import {
@@ -51,42 +51,96 @@ const ToggleDeletedCell = ({ item }: { item: Item }) => {
   )
 }
 
+const EditableFieldCell = ({
+  item,
+  columnId,
+}: {
+  item: Item
+  columnId: string
+}) => {
+  const mutation = useMutation({
+    mutationFn: useConvexMutation(api.items.modify),
+  })
+
+  const [inputValue, setInputValue] = useState(
+    String(item[columnId as keyof Item]),
+  )
+
+  const handleChange = (value: string) => {
+    setInputValue(value)
+  }
+
+  return (
+    <input
+      onChange={(e) => handleChange(e.target.value)}
+      value={inputValue}
+    ></input>
+  )
+}
+
 const columns: ColumnDef<Item>[] = [
   {
     accessorKey: 'slug',
     header: 'Slug',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'name',
     header: 'Name',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'description',
     header: 'Description',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'category',
     header: 'Category',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'rarity',
     header: 'Rarity',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'value',
     header: 'Value',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'weight',
     header: 'Weight',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'imageURL',
     header: 'Image URL',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'stackable',
     header: 'Stackable',
+    cell: ({ row, column }) => (
+      <EditableFieldCell item={row.original} columnId={column.id} />
+    ),
   },
   {
     accessorKey: 'deleted',
