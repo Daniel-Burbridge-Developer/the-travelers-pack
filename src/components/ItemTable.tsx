@@ -74,6 +74,11 @@ const EditableFieldCell = ({
     <input
       onChange={(e) => handleChange(e.target.value)}
       value={inputValue}
+      onBlur={() => {
+        if (inputValue !== String(item[columnId as keyof Item])) {
+          mutation.mutate({ id: item._id, field: columnId, value: inputValue })
+        }
+      }}
     ></input>
   )
 }

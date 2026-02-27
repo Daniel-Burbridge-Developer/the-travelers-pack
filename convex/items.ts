@@ -40,11 +40,15 @@ export const toggleDeleted = mutation({
 })
 
 export const modify = mutation({
-  args: { id: v.id('itemCatalogue') },
+  args: {
+    id: v.id('itemCatalogue'),
+    field: v.string(),
+    value: v.union(v.string(), v.number(), v.boolean()),
+  },
   handler: async (ctx, args) => {
     const item = await ctx.db.get(args.id)
     if (!item) throw new Error('Item not found')
 
-    await ctx.db.patch(args.id, { deleted: !item.deleted })
+    await ctx.db.patch(args.id, { [args.field]: args.value })
   },
 })
