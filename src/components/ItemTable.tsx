@@ -23,6 +23,15 @@ import {
 } from '@/components/ui/table'
 import { useState } from 'react'
 import { Button } from './ui/button'
+import {
+  ComboboxContent,
+  Combobox,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from './ui/combobox'
+import { itemPress } from 'node_modules/@base-ui/react/esm/utils/reason-parts'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -51,7 +60,7 @@ const ToggleDeletedCell = ({ item }: { item: Item }) => {
   )
 }
 
-const EditableFieldCell = ({
+const EditableStringFieldCell = ({
   item,
   columnId,
 }: {
@@ -83,68 +92,187 @@ const EditableFieldCell = ({
   )
 }
 
+const EditableOptionFieldCell = ({
+  item,
+  columnId,
+}: {
+  item: Item
+  columnId: string
+}) => {
+  const mutation = useMutation({
+    mutationFn: useConvexMutation(api.items.modify),
+  })
+
+  const [inputValue, setInputValue] = useState(
+    String(item[columnId as keyof Item]),
+  )
+
+  const handleChange = (value: string) => {
+    setInputValue(value)
+  }
+  return (
+    <Combobox items={}>
+      <ComboboxInput placeholder="Select a Category" />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+
+  // return (
+  //   <input
+  //     onChange={(e) => handleChange(e.target.value)}
+  //     value={inputValue}
+  //     onBlur={() => {
+  //       if (inputValue !== String(item[columnId as keyof Item])) {
+  //         mutation.mutate({ id: item._id, field: columnId, value: inputValue })
+  //       }
+  //     }}
+  //   ></input>
+  // )
+}
+
+const EditableNumberFieldCell = ({
+  item,
+  columnId,
+}: {
+  item: Item
+  columnId: string
+}) => {
+  const mutation = useMutation({
+    mutationFn: useConvexMutation(api.items.modify),
+  })
+
+  const [inputValue, setInputValue] = useState(
+    String(item[columnId as keyof Item]),
+  )
+
+  const handleChange = (value: string) => {
+    setInputValue(value)
+  }
+
+  return (
+    <input
+      onChange={(e) => handleChange(e.target.value)}
+      value={inputValue}
+      onBlur={() => {
+        if (inputValue !== String(item[columnId as keyof Item])) {
+          mutation.mutate({
+            id: item._id,
+            field: columnId,
+            value: Number(inputValue),
+          })
+        }
+      }}
+    ></input>
+  )
+}
+
+const EditableBooleanFieldCell = ({
+  item,
+  columnId,
+}: {
+  item: Item
+  columnId: string
+}) => {
+  const mutation = useMutation({
+    mutationFn: useConvexMutation(api.items.modify),
+  })
+
+  const [inputValue, setInputValue] = useState(
+    String(item[columnId as keyof Item]),
+  )
+
+  const handleChange = (value: string) => {
+    setInputValue(value)
+  }
+
+  return (
+    <input
+      onChange={(e) => handleChange(e.target.value)}
+      value={inputValue}
+      onBlur={() => {
+        if (inputValue !== String(item[columnId as keyof Item])) {
+          mutation.mutate({
+            id: item._id,
+            field: columnId,
+            value: inputValue == 'true' ? true : false,
+          })
+        }
+      }}
+    ></input>
+  )
+}
+
 const columns: ColumnDef<Item>[] = [
   {
     accessorKey: 'slug',
     header: 'Slug',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableStringFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
     accessorKey: 'name',
     header: 'Name',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableStringFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
     accessorKey: 'description',
     header: 'Description',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableStringFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
     accessorKey: 'category',
     header: 'Category',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableOptionFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
     accessorKey: 'rarity',
     header: 'Rarity',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableOptionFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
     accessorKey: 'value',
     header: 'Value',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableNumberFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
     accessorKey: 'weight',
     header: 'Weight',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableNumberFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
     accessorKey: 'imageURL',
     header: 'Image URL',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableStringFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
     accessorKey: 'stackable',
     header: 'Stackable',
     cell: ({ row, column }) => (
-      <EditableFieldCell item={row.original} columnId={column.id} />
+      <EditableBooleanFieldCell item={row.original} columnId={column.id} />
     ),
   },
   {
