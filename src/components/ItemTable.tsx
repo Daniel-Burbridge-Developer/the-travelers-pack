@@ -31,7 +31,6 @@ import {
   ComboboxItem,
   ComboboxList,
 } from './ui/combobox'
-import { itemPress } from 'node_modules/@base-ui/react/esm/utils/reason-parts'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -95,9 +94,11 @@ const EditableStringFieldCell = ({
 const EditableOptionFieldCell = ({
   item,
   columnId,
+  options,
 }: {
   item: Item
   columnId: string
+  options: string[]
 }) => {
   const mutation = useMutation({
     mutationFn: useConvexMutation(api.items.modify),
@@ -107,36 +108,30 @@ const EditableOptionFieldCell = ({
     String(item[columnId as keyof Item]),
   )
 
-  const handleChange = (value: string) => {
+  const handleChange = (value: string | null) => {
+    if (!value) return
     setInputValue(value)
+    mutation.mutate({
+      id: item._id,
+      field: columnId,
+      value: value,
+    })
   }
   return (
-    <Combobox items={}>
+    <Combobox items={options} value={inputValue} onValueChange={handleChange}>
       <ComboboxInput placeholder="Select a Category" />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
-          {(item) => (
-            <ComboboxItem key={item} value={item}>
-              {item}
+          {options.map((option) => (
+            <ComboboxItem key={option} value={option}>
+              {option}
             </ComboboxItem>
-          )}
+          ))}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
   )
-
-  // return (
-  //   <input
-  //     onChange={(e) => handleChange(e.target.value)}
-  //     value={inputValue}
-  //     onBlur={() => {
-  //       if (inputValue !== String(item[columnId as keyof Item])) {
-  //         mutation.mutate({ id: item._id, field: columnId, value: inputValue })
-  //       }
-  //     }}
-  //   ></input>
-  // )
 }
 
 const EditableNumberFieldCell = ({
@@ -237,14 +232,22 @@ const columns: ColumnDef<Item>[] = [
     accessorKey: 'category',
     header: 'Category',
     cell: ({ row, column }) => (
-      <EditableOptionFieldCell item={row.original} columnId={column.id} />
+      <EditableOptionFieldCell
+        item={row.original}
+        columnId={column.id}
+        options={itemCatalogue.shape.category.options}
+      />
     ),
   },
   {
     accessorKey: 'rarity',
     header: 'Rarity',
     cell: ({ row, column }) => (
-      <EditableOptionFieldCell item={row.original} columnId={column.id} />
+      <EditableOptionFieldCell
+        item={row.original}
+        columnId={column.id}
+        options={itemCatalogue.shape.rarity.options}
+      />
     ),
   },
   {
