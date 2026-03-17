@@ -1,7 +1,11 @@
 import { itemCatalogue } from '@/schemas/schemas'
 import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ColumnDef } from '@tanstack/react-table'
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  Table as TanstackTable,
+} from '@tanstack/react-table'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 import { ArrowRightLeft } from 'lucide-react'
@@ -11,6 +15,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  getFilteredRowModel,
 } from '@tanstack/react-table'
 
 import {
@@ -31,6 +36,8 @@ import {
   ComboboxItem,
   ComboboxList,
 } from './ui/combobox'
+
+import { Input } from './ui/input'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -206,6 +213,38 @@ const EditableBooleanFieldCell = ({
   )
 }
 
+const SelectableFilter = <TData,>({
+  options,
+  table,
+}: {
+  options: string[]
+  table: TanstackTable<TData>
+}) => {
+  const [inputValue, setInputValue] = useState('')
+
+  const handleChange = (value: string | null) => {
+    if (!value) return
+    setInputValue(value)
+    table.getColumn('category')?.setFilterValue(value)
+  }
+
+  return (
+    <Combobox items={options} value={inputValue} onValueChange={handleChange}>
+      <ComboboxInput placeholder="Select a Category" />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {options.map((option) => (
+            <ComboboxItem key={option} value={option}>
+              {option}
+            </ComboboxItem>
+          ))}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
+
 const columns: ColumnDef<Item>[] = [
   {
     accessorKey: 'slug',
@@ -289,14 +328,22 @@ function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [inputValues, setInputValues] = useState<Record<string, string>>({})
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const mutation = useMutation({
+    mutationFn: useConvexMutation(api.items.add),
+  })
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      columnFilters,
+    },
   })
-
-  const [inputValues, setInputValues] = useState<Record<string, string>>({})
-  const mutation = useMutation({ mutationFn: useConvexMutation(api.items.add) })
 
   const handleCellChange = (cellID: string, value: string) => {
     setInputValues({ ...inputValues, [cellID]: value })
@@ -304,6 +351,20 @@ function DataTable<TData, TValue>({
 
   return (
     <div className="overflow-hidden rounded-md border">
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Filter items"
+          value={table.getColumn('name')?.getFilterValue() as string}
+          onChange={(e) =>
+            table.getColumn('name')?.setFilterValue(e.target.value)
+          }
+          className="max-w-sm"
+        />
+        <SelectableFilter
+          options={itemCatalogue.shape.category.options}
+          table={table}
+        />
+      </div>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
