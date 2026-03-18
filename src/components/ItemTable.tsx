@@ -4,6 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
   ColumnDef,
   ColumnFiltersState,
+  SortingState,
   Table as TanstackTable,
 } from '@tanstack/react-table'
 import { api } from 'convex/_generated/api'
@@ -16,6 +17,7 @@ import {
   getCoreRowModel,
   useReactTable,
   getFilteredRowModel,
+  getSortedRowModel,
 } from '@tanstack/react-table'
 
 import {
@@ -216,21 +218,30 @@ const EditableBooleanFieldCell = ({
 const SelectableFilter = <TData,>({
   options,
   table,
+  field,
 }: {
   options: string[]
   table: TanstackTable<TData>
+  field: string
 }) => {
   const [inputValue, setInputValue] = useState('')
 
   const handleChange = (value: string | null) => {
     if (!value) return
-    setInputValue(value)
-    table.getColumn('category')?.setFilterValue(value)
+    if (value == 'all') {
+      setInputValue('')
+      table.getColumn(field)?.setFilterValue('')
+    } else {
+      setInputValue(value)
+      table.getColumn(field)?.setFilterValue(value)
+    }
   }
+
+  options = [...options, 'all']
 
   return (
     <Combobox items={options} value={inputValue} onValueChange={handleChange}>
-      <ComboboxInput placeholder="Select a Category" />
+      <ComboboxInput placeholder={`Select a ${field}`} />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
@@ -269,7 +280,16 @@ const columns: ColumnDef<Item>[] = [
   },
   {
     accessorKey: 'category',
-    header: 'Category',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Category
+        </Button>
+      )
+    },
     cell: ({ row, column }) => (
       <EditableOptionFieldCell
         item={row.original}
@@ -280,7 +300,16 @@ const columns: ColumnDef<Item>[] = [
   },
   {
     accessorKey: 'rarity',
-    header: 'Rarity',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Rarity
+        </Button>
+      )
+    },
     cell: ({ row, column }) => (
       <EditableOptionFieldCell
         item={row.original}
@@ -330,6 +359,7 @@ function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [inputValues, setInputValues] = useState<Record<string, string>>({})
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([])
   const mutation = useMutation({
     mutationFn: useConvexMutation(api.items.add),
   })
@@ -340,9 +370,12 @@ function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     state: {
       columnFilters,
+      sorting,
     },
+    onSortingChange: setSorting,
   })
 
   const handleCellChange = (cellID: string, value: string) => {
@@ -363,6 +396,12 @@ function DataTable<TData, TValue>({
         <SelectableFilter
           options={itemCatalogue.shape.category.options}
           table={table}
+          field="category"
+        />
+        <SelectableFilter
+          options={itemCatalogue.shape.rarity.options}
+          table={table}
+          field="rarity"
         />
       </div>
       <Table>
@@ -411,7 +450,9 @@ function DataTable<TData, TValue>({
                 <input
                   onChange={(e) => handleCellChange(cell.id, e.target.value)}
                   value={inputValues[cell.id] ?? ''}
-                  placeholder={cell.columnDef.header?.toString()}
+                  placeholder={
+                    cell.id.charAt(0).toUpperCase() + cell.id.slice(1)
+                  }
                 ></input>
               </TableCell>
             ))}
