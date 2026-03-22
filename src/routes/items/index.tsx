@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ItemTable } from '#/components/ItemTable.tsx'
+import { ItemTable } from '@/components/features/ItemTable/ItemTable'
 
 export const Route = createFileRoute('/items/')({
   component: Inventory,
