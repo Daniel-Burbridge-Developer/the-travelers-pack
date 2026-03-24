@@ -1,4 +1,5 @@
 import { itemCatalogue } from '@/schemas/schemas'
+import type { Item } from '@/types/types'
 import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
@@ -29,9 +30,6 @@ import type {
   SortingState,
 } from '@tanstack/react-table'
 
-import type { Id } from 'convex/_generated/dataModel'
-import type z from 'zod'
-
 import {
   ToggleDeletedCell,
   EditableStringFieldCell,
@@ -45,11 +43,6 @@ import { SelectableFilter } from './ItemTableFilters'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-}
-
-type Item = z.infer<typeof itemCatalogue> & {
-  _id: Id<'itemCatalogue'>
-  _creationTime: number
 }
 
 const columns: ColumnDef<Item>[] = [

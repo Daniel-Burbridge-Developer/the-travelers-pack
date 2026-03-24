@@ -1,9 +1,6 @@
 import { ArrowRightLeft } from 'lucide-react'
-
-import type { itemCatalogue } from '@/schemas/schemas'
-import type { Id } from 'convex/_generated/dataModel'
+import type { Item } from '@/types/types'
 import { useConvexMutation } from '@convex-dev/react-query'
-import type z from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import { useState } from 'react'
@@ -16,11 +13,6 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '../../ui/combobox'
-
-type Item = z.infer<typeof itemCatalogue> & {
-  _id: Id<'itemCatalogue'>
-  _creationTime: number
-}
 
 export const ToggleDeletedCell = ({ item }: { item: Item }) => {
   const mutation = useMutation({
