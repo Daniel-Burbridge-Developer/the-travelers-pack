@@ -30,13 +30,7 @@ import type {
   SortingState,
 } from '@tanstack/react-table'
 
-import {
-  ToggleDeletedCell,
-  EditableStringFieldCell,
-  EditableOptionFieldCell,
-  EditableNumberFieldCell,
-  EditableBooleanFieldCell,
-} from './ItemTableCells'
+import { ToggleDeletedCell, EditableCell } from './ItemTableCells'
 
 import { SelectableFilter } from './ItemTableFilters'
 
@@ -50,21 +44,33 @@ const columns: ColumnDef<Item>[] = [
     accessorKey: 'slug',
     header: 'Slug',
     cell: ({ row, column }) => (
-      <EditableStringFieldCell item={row.original} columnId={column.id} />
+      <EditableCell
+        item={row.original}
+        columnId={column.id}
+        transform={(v: string) => v}
+      />
     ),
   },
   {
     accessorKey: 'name',
     header: 'Name',
     cell: ({ row, column }) => (
-      <EditableStringFieldCell item={row.original} columnId={column.id} />
+      <EditableCell
+        item={row.original}
+        columnId={column.id}
+        transform={(v: string) => v}
+      />
     ),
   },
   {
     accessorKey: 'description',
     header: 'Description',
     cell: ({ row, column }) => (
-      <EditableStringFieldCell item={row.original} columnId={column.id} />
+      <EditableCell
+        item={row.original}
+        columnId={column.id}
+        transform={(v: string) => v}
+      />
     ),
   },
   {
@@ -80,9 +86,10 @@ const columns: ColumnDef<Item>[] = [
       )
     },
     cell: ({ row, column }) => (
-      <EditableOptionFieldCell
+      <EditableCell
         item={row.original}
         columnId={column.id}
+        transform={(v: string) => v}
         options={itemCatalogue.shape.category.options}
       />
     ),
@@ -100,9 +107,10 @@ const columns: ColumnDef<Item>[] = [
       )
     },
     cell: ({ row, column }) => (
-      <EditableOptionFieldCell
+      <EditableCell
         item={row.original}
         columnId={column.id}
+        transform={(v: string) => v}
         options={itemCatalogue.shape.rarity.options}
       />
     ),
@@ -111,28 +119,44 @@ const columns: ColumnDef<Item>[] = [
     accessorKey: 'value',
     header: 'Value',
     cell: ({ row, column }) => (
-      <EditableNumberFieldCell item={row.original} columnId={column.id} />
+      <EditableCell
+        item={row.original}
+        columnId={column.id}
+        transform={(v: string) => Number(v)}
+      />
     ),
   },
   {
     accessorKey: 'weight',
     header: 'Weight',
     cell: ({ row, column }) => (
-      <EditableNumberFieldCell item={row.original} columnId={column.id} />
+      <EditableCell
+        item={row.original}
+        columnId={column.id}
+        transform={(v: string) => Number(v)}
+      />
     ),
   },
   {
     accessorKey: 'imageURL',
     header: 'Image URL',
     cell: ({ row, column }) => (
-      <EditableStringFieldCell item={row.original} columnId={column.id} />
+      <EditableCell
+        item={row.original}
+        columnId={column.id}
+        transform={(v: string) => v}
+      />
     ),
   },
   {
     accessorKey: 'stackable',
     header: 'Stackable',
     cell: ({ row, column }) => (
-      <EditableBooleanFieldCell item={row.original} columnId={column.id} />
+      <EditableCell
+        item={row.original}
+        columnId={column.id}
+        transform={(v: string) => v == 'true'}
+      />
     ),
   },
   {
